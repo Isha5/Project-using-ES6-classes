@@ -42,6 +42,51 @@ class UI {
     }
 }
 
+//LOCAL STORAGE
+class Store {
+    static getBooks() {
+        let books;
+        if(localStorage.getItem('books') === null) { //check if localStorage is empty
+            books = [];
+        } else {
+            books = JSON.parse(localStorage.getItem('books'));
+        }
+        return books;
+    }
+    static displayBooks() {
+        const books = Store.getBooks();
+        books.forEach(function(book) {
+        const list =  document.getElementById('book-list');
+        const row =  document.createElement('tr');
+        row.innerHTML = `
+        <td> ${book.title} </td>
+        <td> ${book.author} </td>
+        <td>${book.isbn}</td>
+        <td><a href="#" class="delete"> X </a></td>`;
+        list.appendChild(row);
+        });
+    }
+    static addBook(book) {
+        const books = Store.getBooks();
+        books.push(book);
+        localStorage.setItem('books',JSON.stringify(books));
+    }
+    static removeBook(isbn) {
+        
+        const books = Store.getBooks();
+        
+        books.forEach(function(b, index){
+            if(b.isbn === isbn) {
+             books.splice(index, 1);
+            }
+        });
+        localStorage.setItem('books',JSON.stringify(books)); 
+    }
+}
+
+//ONLOAD //DISPLAY PERSISTED BOOKS TO UI
+document.addEventListener('DOMContentLoaded', Store.displayBooks);
+
 //SUBMIT EVENTLISTENER
 document.getElementById('book-form').addEventListener('submit', function(e) {
 
@@ -61,6 +106,8 @@ document.getElementById('book-form').addEventListener('submit', function(e) {
     } else {
          //ADD BOOK TO THE TABLE
          ui.addBookToList(book);
+         //ADD TO LOCAL STORAGE
+         Store.addBook(book);
          //SHOW ADDED SUCCESS MESSAGE
          ui.showAlert('Book added!!', 'success');
     }   
@@ -71,6 +118,23 @@ document.getElementById('book-list').addEventListener('click', (e) => {
     
     const ui = new UI();
     ui.deleteBook(e.target);
+    Store.removeBook(e.target.parentElement.previousElementSibling.textContent);
     ui.showAlert('Book deleted', 'success');  
     e.preventDefault();
 });
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+        
